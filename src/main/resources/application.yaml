@@ -2,6 +2,28 @@ spring:
   application:
     name: ipai
 
+  # 데이터베이스 연결 설정
+  datasource:
+    # localhost:5432 뒤의 이름은 pgAdmin에서 확인한 데이터베이스 이름과 같아야 합니다.
+    url: jdbc:postgresql://localhost:5432/postgres
+    # 2. Username: 실제 사용자인 a085073으로 수정합니다.
+    username: a085073
+    # 3. Password: 실제 비밀번호인 aivle202508로 수정합니다.
+    password: aivle202508
+    driver-class-name: org.postgresql.Driver
+
+  # JPA 및 하이버네이트 설정
+  jpa:
+    hibernate:
+      # update: 변경된 엔티티 클래스만 DB에 반영합니다.
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+# 로그 설정 (사용자 기존 설정 유지)
 logging:
   level:
     root: INFO
@@ -11,5 +33,6 @@ logging:
   charset:
     console: UTF-8
 
+# 앱 버전 설정 (사용자 기존 설정 유지)
 app:
   version: ${version}
