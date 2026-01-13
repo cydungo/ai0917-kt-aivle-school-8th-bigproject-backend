@@ -36,3 +36,8 @@ logging:
 # 앱 버전 설정 (사용자 기존 설정 유지)
 app:
   version: ${version}
+
+  naver:
+    client-id: "mh9sg9YDttBxGB05kUHA"
+    client-secret: "2eV4B9VaXh"
+    redirect-uri: "http://localhost:8080/auth/naver/callback"

@@ -1,0 +1,13 @@
+package com.aivle.ai0917.ipai.repository;
+
+import com.aivle.ai0917.ipai.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+/**
+ * DB에서 사용자 조회/저장 담당
+ */
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByNaverId(String naverId);
+}

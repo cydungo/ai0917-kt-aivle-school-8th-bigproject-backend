@@ -1,0 +1,149 @@
+package com.aivle.ai0917.ipai.auth;
+
+import com.aivle.ai0917.ipai.model.NaverProfileResponse;
+import com.aivle.ai0917.ipai.model.NaverTokenResponse;
+import com.aivle.ai0917.ipai.model.User;
+import com.aivle.ai0917.ipai.repository.UserRepository;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
+/**
+ * 네이버 OAuth2 로그인 처리 서비스
+ *
+ * 처리 흐름:
+ * 1) 네이버 로그인 URL 생성(redirect)
+ * 2) callback에서 code/state 받음
+ * 3) code로 access_token 발급
+ * 4) access_token으로 사용자 프로필 조회
+ * 5) DB에 사용자 있으면 로그인 / 없으면 회원가입 후 로그인
+ */
+@Service
+public class NaverAuthService {
+
+    private final NaverOAuthProperties props;
+    private final UserRepository userRepository;
+    private final WebClient webClient;
+
+    public NaverAuthService(NaverOAuthProperties props, UserRepository userRepository) {
+        this.props = props;
+        this.userRepository = userRepository;
+        this.webClient = WebClient.builder().build();
+    }
+
+    /** 네이버 로그인 페이지로 보낼 URL 생성 */
+    public LoginUrlResult buildLoginUrl() {
+
+        // CSRF 공격 방지용 state 값 (정석은 서버에 저장해두고 callback에서 비교)
+        String state = UUID.randomUUID().toString();
+
+        String redirect = URLEncoder.encode(props.getRedirectUri(), StandardCharsets.UTF_8);
+
+        String url =
+                "https://nid.naver.com/oauth2.0/authorize"
+                        + "?response_type=code"
+                        + "&client_id=" + props.getClientId()
+                        + "&redirect_uri=" + redirect
+                        + "&state=" + state;
+
+        return new LoginUrlResult(url, state);
+    }
+
+    /**
+     * 네이버 로그인 완료 후 callback에서 호출되는 핵심 로직
+     * - 사용자 정보 조회 후 DB 저장/갱신
+     */
+    public User loginOrRegister(String code, String state) {
+        String accessToken = getAccessToken(code, state);
+        NaverProfileResponse profileResponse = getProfile(accessToken);
+
+        var p = profileResponse.getProfile();
+
+        // 네이버 고유 ID는 절대 변하지 않으므로 우리 서비스의 외부 식별자로 사용
+        String naverId = p.getId();
+
+        return userRepository.findByNaverId(naverId)
+                .map(user -> {
+                    // 이미 가입된 사용자면 최신 정보로 업데이트
+                    // (네이버 동의 항목이 바뀔 수 있으므로 갱신하는 게 좋음)
+                    user.setEmail(p.getEmail());
+                    user.setName(p.getName());
+                    user.setGender(p.getGender());
+                    user.setBirthYear(p.getBirthyear());
+                    user.setBirthday(p.getBirthday());
+                    user.setMobile(p.getMobile());
+                    return userRepository.save(user);
+                })
+                .orElseGet(() -> {
+                    // 신규 사용자면 회원가입 처리
+                    User created = new User(
+                            naverId,
+                            p.getEmail(),
+                            p.getName(),
+                            p.getGender(),
+                            p.getBirthyear(),
+                            p.getBirthday(),
+                            p.getMobile()
+                    );
+                    return userRepository.save(created);
+                });
+    }
+
+    /** code로 access_token 발급 요청 */
+    private String getAccessToken(String code, String state) {
+
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("grant_type", "authorization_code");
+        form.add("client_id", props.getClientId());
+        form.add("client_secret", props.getClientSecret());
+        form.add("code", code);
+        form.add("state", state);
+
+        NaverTokenResponse tokenResponse = webClient.post()
+                .uri("https://nid.naver.com/oauth2.0/token")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .bodyValue(form)
+                .retrieve()
+                .bodyToMono(NaverTokenResponse.class)
+                .block();
+
+        if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
+            String err = (tokenResponse == null) ? "null response" : tokenResponse.getError();
+            String desc = (tokenResponse == null) ? "" : tokenResponse.getErrorDescription();
+            throw new RuntimeException("네이버 토큰 발급 실패: " + err + " / " + desc);
+        }
+
+        return tokenResponse.getAccessToken();
+    }
+
+    /** access_token으로 사용자 정보 조회 */
+    private NaverProfileResponse getProfile(String accessToken) {
+
+        NaverProfileResponse profileResponse = webClient.get()
+                .uri("https://openapi.naver.com/v1/nid/me")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(NaverProfileResponse.class)
+                .block();
+
+        if (profileResponse == null || profileResponse.getProfile() == null) {
+            throw new RuntimeException("네이버 프로필 조회 실패: response is null");
+        }
+
+        if (!"00".equals(profileResponse.getResultcode())) {
+            throw new RuntimeException("네이버 프로필 조회 실패: " + profileResponse.getMessage());
+        }
+
+        return profileResponse;
+    }
+
+    /** 로그인 URL + state를 함께 반환할 때 사용(필요하면 확장 가능) */
+    public record LoginUrlResult(String url, String state) {}
+}
