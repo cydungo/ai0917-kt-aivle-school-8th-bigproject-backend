@@ -1,7 +1,7 @@
 package com.aivle.ai0917.ipai.domain.user.controller;
 
 
-import com.aivle.ai0917.ipai.global.security.JwtProvider;
+import com.aivle.ai0917.ipai.global.security.jwt.JwtProvider;
 import com.aivle.ai0917.ipai.infra.naver.service.NaverAuthService;
 import com.aivle.ai0917.ipai.domain.user.model.User;
 import jakarta.servlet.http.HttpServletResponse;

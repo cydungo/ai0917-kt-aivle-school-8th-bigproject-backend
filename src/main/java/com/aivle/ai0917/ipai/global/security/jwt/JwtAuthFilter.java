@@ -1,4 +1,4 @@
-package com.aivle.ai0917.ipai.global.security;
+package com.aivle.ai0917.ipai.global.security.jwt;
 
 
 import io.jsonwebtoken.Claims;

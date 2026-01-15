@@ -1,7 +1,7 @@
 package com.aivle.ai0917.ipai.global.config;
 
-import com.aivle.ai0917.ipai.global.security.JwtAuthFilter;
-import com.aivle.ai0917.ipai.global.security.JwtProvider;
+import com.aivle.ai0917.ipai.global.security.jwt.JwtAuthFilter;
+import com.aivle.ai0917.ipai.global.security.jwt.JwtProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
