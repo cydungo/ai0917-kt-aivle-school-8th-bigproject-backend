@@ -1,16 +1,11 @@
 spring:
   application:
     name: ipai
+  config:
+    import:
+      - optional:classpath:application-secret.yaml
+      - optional:classpath:application-local.yaml
 
-  # 데이터베이스 연결 설정
-  datasource:
-    # localhost:5432 뒤의 이름은 pgAdmin에서 확인한 데이터베이스 이름과 같아야 합니다.
-    url: jdbc:postgresql://100.95.214.66:5432/postgres
-    # 2. Username: 실제 사용자인 a085073으로 수정합니다.
-    username: a085073
-    # 3. Password: 실제 비밀번호인 aivle202508로 수정합니다.
-    password: aivle202508
-    driver-class-name: org.postgresql.Driver
 
   # JPA 및 하이버네이트 설정
   jpa:
@@ -38,15 +33,6 @@ app:
   version: ${version}
 
 
-naver:
-  client-id: "mh9sg9YDttBxGB05kUHA"
-  client-secret: "2eV4B9VaXh"
-  redirect-uri: "http://localhost:8080/auth/naver/callback"
-
-jwt:
-  # 운영에서는 환경변수로! 예: JWT_SECRET
-  secret: ${JWT_SECRET}
-  access-token-exp-minutes: 60
 
 
 app-front:
