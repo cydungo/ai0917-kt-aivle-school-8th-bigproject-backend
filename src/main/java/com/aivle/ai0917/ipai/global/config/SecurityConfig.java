@@ -31,6 +31,7 @@ public class SecurityConfig {
                         // OAuth 콜백은 GET이라 보통 CSRF 영향 없음.
                         // 필요하면 특정 경로만 ignore도 가능 (원하면 아래처럼)
                         // .ignoringRequestMatchers("/api/v1/auth/naver/**")
+                        .ignoringRequestMatchers("/api/v1/signup/naver/complete")
                 )
 
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
