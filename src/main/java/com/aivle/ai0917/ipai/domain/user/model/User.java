@@ -10,8 +10,8 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users", indexes = {
-        @Index(name = "idx_users_naver_id", columnList = "naverId", unique = true),
-        @Index(name = "idx_users_email_id", columnList = "siteEmail", unique = true)
+        @Index(name = "idx_users_naver_id", columnList = "naver_id", unique = true),
+        @Index(name = "idx_users_email_id", columnList = "site_email", unique = true)
 })
 public class User {
 
