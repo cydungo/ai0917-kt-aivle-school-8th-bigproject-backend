@@ -3,7 +3,7 @@ package com.aivle.ai0917.ipai.domain.user.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -41,9 +41,9 @@ public class User {
     private String role = "Author";
 
     @Column(updatable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @Builder
     public User(String naverId, String siteEmail, String sitePwd, String email, String name,
@@ -62,12 +62,12 @@ public class User {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = Instant.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }

@@ -3,7 +3,7 @@ package com.aivle.ai0917.ipai.domain.notice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -38,9 +38,9 @@ public class Notice {
     private String writer;
 
     @Column(updatable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @Builder
     public Notice(String title, String content, String filePath, String originalFilename,
@@ -56,13 +56,13 @@ public class Notice {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = Instant.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // 파일 관련 비즈니스 로직

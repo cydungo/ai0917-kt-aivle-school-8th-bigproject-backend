@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -82,7 +83,7 @@ public class NaverAuthService {
                     user.setBirthYear(p.getBirthyear());
                     user.setBirthday(p.getBirthday());
                     user.setMobile(p.getMobile());
-                    user.setUpdatedAt(java.time.Instant.now());
+                    user.setUpdatedAt(LocalDateTime.now());
                     return userRepository.save(user);
                 })
                 // NaverAuthService.java
@@ -138,7 +139,7 @@ public class NaverAuthService {
             user.setBirthYear(p.getBirthyear());
             user.setBirthday(p.getBirthday());
             user.setMobile(p.getMobile());
-            user.setUpdatedAt(java.time.Instant.now());
+            user.setUpdatedAt(LocalDateTime.now());
         }
 
         // 3. 마지막에 DB에 반영 (신규면 Insert, 기존이면 Update)

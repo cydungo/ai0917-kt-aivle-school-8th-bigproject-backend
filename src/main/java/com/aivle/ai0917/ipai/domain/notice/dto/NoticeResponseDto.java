@@ -3,7 +3,7 @@ package com.aivle.ai0917.ipai.domain.notice.dto;
 import com.aivle.ai0917.ipai.domain.notice.model.Notice;
 import lombok.Getter;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 public class NoticeResponseDto {
@@ -15,7 +15,7 @@ public class NoticeResponseDto {
     private Long fileSize;            // 파일 크기 추가
     private String contentType;       // MIME 타입 추가
     private String writer;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     public NoticeResponseDto(Notice notice) {
         this.id = notice.getId();
