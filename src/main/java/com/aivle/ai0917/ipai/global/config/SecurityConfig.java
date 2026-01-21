@@ -40,13 +40,24 @@ public class SecurityConfig {
                         // 공개 API만 정확히 오픈
                         .requestMatchers(
                                 "/api/v1/hello",
-                                "/api/v1/api/test"
+                                "/api/v1/api/test",
+
+                                "/api/v1/auth/naver/callback",
+                                "/api/v1/auth/naver/hello",
+                                "/api/v1/auth/naver/user",
+                                "/api/v1/admin/dashboard/**",
+                                "/api/v1/admin/access/**",
+                                "/api/v1/admin/sysnotice/**",
+                                "/api/v1/login",
+                                "/api/v1/admin/notice/**"
                         ).permitAll()
+
 
                         // 네이버 OAuth 시작/콜백은 공개
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/auth/naver/login",
                                 "/api/v1/auth/naver/callback"
+
                         ).permitAll()
 
                         // signup 진행(이메일 인증/가입완료)은 공개지만 CSRF 토큰은 요구될 수 있음
