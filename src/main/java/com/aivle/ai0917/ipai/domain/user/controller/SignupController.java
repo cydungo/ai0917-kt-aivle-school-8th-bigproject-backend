@@ -165,7 +165,7 @@ public class SignupController {
         User saved = userRepository.save(user);
 
         // ✅ 가입 완료와 동시에 로그인 처리(accessToken 쿠키 발급)
-        String accessJwt = jwtProvider.createAccessToken(saved.getId(), String.valueOf(saved.getRole()));
+        String accessJwt = jwtProvider.createAccessToken(saved.getId(), user.getRole());
 
         ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE, accessJwt)
                 .httpOnly(true)

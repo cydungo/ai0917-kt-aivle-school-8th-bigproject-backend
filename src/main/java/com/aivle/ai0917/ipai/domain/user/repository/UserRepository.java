@@ -13,8 +13,13 @@ import java.util.Optional;
  */
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByNaverId(String naverId);
+
+    //이메일 로그인용
     Optional<User> findBySiteEmail(String siteEmail);
+
     boolean existsBySiteEmail(String siteEmail);
+
+
 
     // 전체 사용자 수
     @Query("SELECT COUNT(u) FROM User u")

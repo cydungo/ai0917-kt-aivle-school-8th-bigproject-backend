@@ -260,7 +260,7 @@ public class AuthController {
         if (existing.isPresent() && existing.get().getSiteEmail() != null) {
             User user = existing.get();
 
-            String accessJwt = jwtProvider.createAccessToken(user.getId(), String.valueOf(user.getRole()));
+            String accessJwt = jwtProvider.createAccessToken(user.getId(), user.getRole());
             ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE, accessJwt)
                     .httpOnly(true)
                     .secure(cookieSecure)
