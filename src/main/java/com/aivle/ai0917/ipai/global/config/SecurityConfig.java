@@ -12,7 +12,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -28,8 +27,7 @@ public class SecurityConfig {
                 // ✅ HttpOnly 쿠키 인증이면 CSRF 켜는 것을 권장
                 // 프론트는 XSRF-TOKEN 쿠키를 읽어서 X-XSRF-TOKEN 헤더로 보내면 됨
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         // OAuth 콜백은 GET이라 보통 CSRF 영향 없음.
                         // 필요하면 특정 경로만 ignore도 가능 (원하면 아래처럼)
                         // .ignoringRequestMatchers("/api/v1/auth/naver/**")
@@ -38,30 +36,17 @@ public class SecurityConfig {
 
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-
                 .authorizeHttpRequests(auth -> auth
                         // 공개 API만 정확히 오픈
                         .requestMatchers(
                                 "/api/v1/hello",
-                                "/api/v1/api/test",
-
-                                "/api/v1/auth/naver/callback",
-                                "/api/v1/auth/naver/hello",
-                                "/api/v1/auth/naver/user",
-                                "/api/v1/admin/dashboard/**",
-                                "/api/v1/admin/access/**",
-                                "/api/v1/admin/sysnotice/**",
-                                "/api/v1/login",
-                                "/api/v1/auth/logout",
-                                "/api/v1/admin/notice/**"
+                                "/api/v1/api/test"
                         ).permitAll()
-
 
                         // 네이버 OAuth 시작/콜백은 공개
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/auth/naver/login",
                                 "/api/v1/auth/naver/callback"
-
                         ).permitAll()
 
                         // signup 진행(이메일 인증/가입완료)은 공개지만 CSRF 토큰은 요구될 수 있음
