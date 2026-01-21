@@ -1,5 +1,6 @@
 package com.aivle.ai0917.ipai.domain.user.controller;
 
+import com.aivle.ai0917.ipai.domain.admin.access.model.UserRole;
 import com.aivle.ai0917.ipai.domain.user.model.User;
 import com.aivle.ai0917.ipai.domain.user.repository.UserRepository;
 import com.aivle.ai0917.ipai.infra.naver.service.EmailVerificationService;
@@ -158,13 +159,13 @@ public class SignupController {
                 .mobile(emptyToNull(p.mobile()))
                 .siteEmail(siteEmail)
                 .sitePwd(hashedPwd)
-                .role("Author")
+                .role(UserRole.Author)
                 .build();
 
         User saved = userRepository.save(user);
 
         // ✅ 가입 완료와 동시에 로그인 처리(accessToken 쿠키 발급)
-        String accessJwt = jwtProvider.createAccessToken(saved.getId(), saved.getRole());
+        String accessJwt = jwtProvider.createAccessToken(saved.getId(), String.valueOf(saved.getRole()));
 
         ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE, accessJwt)
                 .httpOnly(true)
