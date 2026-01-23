@@ -26,23 +26,30 @@ public class AdminController {
     private final AdminNoticeAggregationService aggregationService;
 
 
+
     /**
      * [GET] /api/v1/admin/sysnotice
-     *
-     * admin_notices 테이블의 모든 알림 조회 (디버깅/모니터링용)
-     *
-     * @return 모든 알림 목록
+     * 읽지 않은 알림만 조회하도록 변경
      */
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAdminNotices() {
-        log.info("Fetching all admin notices from admin_notices table");
+    public ResponseEntity<Map<String, Object>> getAdminNotices(
+            @RequestParam(defaultValue = "false") boolean all) {
 
-        List<UnifiedAdminNoticeDto> allNotices = aggregationService.getAllAdminNotices();
+        log.info("Fetching admin notices (all={})", all);
+
+        List<UnifiedAdminNoticeDto> notices;
+        if (all) {
+            notices = aggregationService.getAllAdminNotices();
+        } else {
+            // 기본적으로 읽지 않은 알림만 반환
+            notices = aggregationService.getUnreadAdminNotices();
+        }
 
         Map<String, Object> response = new HashMap<>();
-        response.put("notices", allNotices);
-        response.put("totalCount", allNotices.size());
-        response.put("unreadCount", allNotices.stream().filter(n -> !n.isRead()).count());
+        response.put("notices", notices);
+        response.put("totalCount", notices.size());
+        // 읽지 않은 알림만 조회했을 경우 unreadCount는 전체 사이즈와 동일
+        response.put("unreadCount", notices.stream().filter(n -> !n.isRead()).count());
 
         return ResponseEntity.ok(response);
     }
@@ -68,35 +75,7 @@ public class AdminController {
         return adminNoticeService.subscribe(adminId);
     }
 
-//    /**
-//     * [GET] /api/v1/admin/sysnotice/unified
-//     *
-//     * 통합 알림 목록 조회 (초기 로드용)
-//     * - 모든 소스의 알림을 통합하여 반환
-//     * - 최신순 정렬
-//     *
-//     * @param hoursBack 조회 시간 범위 (시간, 기본 24시간)
-//     * @param limit 최대 알림 개수 (기본 50개)
-//     * @return 통합 알림 목록
-//     */
-//    @GetMapping("/unified")
-//    public ResponseEntity<Map<String, Object>> getUnifiedNotices(
-//            @RequestParam(defaultValue = "24") int hoursBack,
-//            @RequestParam(defaultValue = "50") int limit) {
-//
-//        log.info("Fetching unified notices: hoursBack={}, limit={}", hoursBack, limit);
-//
-//        List<UnifiedAdminNoticeDto> notices =
-//                aggregationService.getUnifiedNotices(hoursBack, limit);
-//
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("notices", notices);
-//        response.put("totalCount", notices.size());
-//        response.put("unreadCount", notices.stream().filter(n -> !n.isRead()).count());
-//        response.put("hoursBack", hoursBack);
-//
-//        return ResponseEntity.ok(response);
-//    }
+
 
     /**
      * [PATCH] /api/v1/admin/sysnotice/{source}/{id}/read
@@ -168,20 +147,19 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
 
-//    /**
-//     * [POST] /api/v1/admin/sysnotice/test-push
-//     *
-//     * 테스트용 알림 발송
-//     *
-//     * @param msg 테스트 메시지
-//     * @return 처리 결과
-//     */
-//    @PostMapping("/test-push")
-//    public ResponseEntity<String> testPush(@RequestParam String msg) {
-//        log.info("Sending test notification: {}", msg);
-//
-//        adminNoticeService.sendCustomAlert("TEST", msg, "Admin");
-//
-//        return ResponseEntity.ok("Test notification sent: " + msg);
-//    }
+    /**
+     * [PATCH] /api/v1/admin/sysnotice/read-all
+     * 모든 알림을 한꺼번에 읽음 처리
+     */
+    @PatchMapping("/read-all")
+    public ResponseEntity<Map<String, String>> markAllAsRead() {
+        log.info("Marking all notifications as read");
+
+        adminNoticeService.markAllAsRead();
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "모든 알림이 읽음 처리되었습니다.");
+
+        return ResponseEntity.ok(response);
+    }
 }

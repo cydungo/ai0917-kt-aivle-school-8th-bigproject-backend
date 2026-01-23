@@ -40,42 +40,41 @@ public class DataCollectionScheduler {
     private final AdminNoticeService adminNoticeService;
     private final ObjectMapper objectMapper;
 
+    // 샘플링 간격 (5초)
+    private static final long SAMPLING_INTERVAL_MS = 5000;
 
     /**
      * 시스템 리소스 메트릭 수집 (5분마다)
+     * - 5초 간격 샘플링으로 평균 측정
      * - 메트릭 수집 및 저장
      * - 임계치 초과 시 SystemLog에 저장 (기존 로직 유지)
      * - 임계치 초과 시 실시간 SSE 알림 전송 (신규)
      */
-    // 시스템 리소스 메트릭 수집
-    // 5분마다 실행 (cron: 0 */5 * * * *)
     @Scheduled(cron = "0 */5 * * * *")
     public void collectSystemMetrics() {
         try {
-            log.info("Collecting system metrics...");
+            log.info("Collecting system metrics with 5-second sampling...");
 
+            // 5초 샘플링으로 평균 측정
             OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
             Runtime runtime = Runtime.getRuntime();
 
-            // CPU 사용률
-            double cpuUsage = osBean.getSystemCpuLoad() * 100.0;
-            if (cpuUsage < 0) {
-                cpuUsage = osBean.getProcessCpuLoad() * 100.0;
-            }
-            if (cpuUsage < 0) cpuUsage = 0.0;
+            // 첫 번째 측정
+            MetricSample startSample = measureMetrics(osBean, runtime);
 
-            // 메모리 사용률
-            long totalMemory = runtime.totalMemory();
-            long freeMemory = runtime.freeMemory();
-            double memoryUsage = ((double)(totalMemory - freeMemory) / totalMemory) * 100.0;
+            // 5초 대기
+            Thread.sleep(SAMPLING_INTERVAL_MS);
 
-            // 스토리지 사용률
-            File root = new File("/");
-            long totalSpace = root.getTotalSpace();
-            long freeSpace = root.getFreeSpace();
-            double storageUsage = totalSpace > 0
-                    ? ((double)(totalSpace - freeSpace) / totalSpace) * 100.0
-                    : 0.0;
+            // 두 번째 측정
+            MetricSample endSample = measureMetrics(osBean, runtime);
+
+            // 평균 계산
+            double cpuUsage = (startSample.cpuUsage + endSample.cpuUsage) / 2.0;
+            double memoryUsage = (startSample.memoryUsage + endSample.memoryUsage) / 2.0;
+            double storageUsage = (startSample.storageUsage + endSample.storageUsage) / 2.0;
+
+            log.info("Sampled metrics - CPU: {:.2f}%, Memory: {:.2f}%, Storage: {:.2f}%",
+                    cpuUsage, memoryUsage, storageUsage);
 
             // 임계치 체크 (예: 90% 이상일 때 에러 로그 생성)
             if (cpuUsage > 90.0 || memoryUsage > 90.0 || storageUsage > 90.0) {
@@ -122,11 +121,40 @@ public class DataCollectionScheduler {
             log.info("System metrics saved: CPU={}%, Memory={}%, Storage={}%",
                     metric.getCpuUsage(), metric.getMemoryUsage(), metric.getStorageUsage());
 
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Sampling interrupted", e);
         } catch (Exception e) {
             log.error("Failed to collect system metrics", e);
         }
     }
 
+    /**
+     * 현재 시스템 메트릭 측정
+     */
+    private MetricSample measureMetrics(OperatingSystemMXBean osBean, Runtime runtime) {
+        // CPU 사용률
+        double cpuUsage = osBean.getSystemCpuLoad() * 100.0;
+        if (cpuUsage < 0) {
+            cpuUsage = osBean.getProcessCpuLoad() * 100.0;
+        }
+        if (cpuUsage < 0) cpuUsage = 0.0;
+
+        // 메모리 사용률
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        double memoryUsage = ((double)(totalMemory - freeMemory) / totalMemory) * 100.0;
+
+        // 스토리지 사용률
+        File root = new File("/");
+        long totalSpace = root.getTotalSpace();
+        long freeSpace = root.getFreeSpace();
+        double storageUsage = totalSpace > 0
+                ? ((double)(totalSpace - freeSpace) / totalSpace) * 100.0
+                : 0.0;
+
+        return new MetricSample(cpuUsage, memoryUsage, storageUsage);
+    }
     /**
      * 메타데이터 JSON 생성
      */
@@ -138,7 +166,7 @@ public class DataCollectionScheduler {
             metadata.put("memoryUsage", Math.round(memory * 100.0) / 100.0);
             metadata.put("memoryThreshold", 90.0);
             metadata.put("storageUsage", Math.round(storage * 100.0) / 100.0);
-            metadata.put("storageThreshold", 85.0);
+            metadata.put("storageThreshold", 90.0);
             metadata.put("timestamp", LocalDateTime.now().toString());
 
             return objectMapper.writeValueAsString(metadata);
@@ -183,5 +211,20 @@ public class DataCollectionScheduler {
     public void collectInitialMetrics() {
         log.info("Collecting initial system metrics on startup...");
         collectSystemMetrics();
+    }
+
+    /**
+     * 메트릭 샘플 내부 클래스
+     */
+    private static class MetricSample {
+        double cpuUsage;
+        double memoryUsage;
+        double storageUsage;
+
+        MetricSample(double cpu, double memory, double storage) {
+            this.cpuUsage = cpu;
+            this.memoryUsage = memory;
+            this.storageUsage = storage;
+        }
     }
 }

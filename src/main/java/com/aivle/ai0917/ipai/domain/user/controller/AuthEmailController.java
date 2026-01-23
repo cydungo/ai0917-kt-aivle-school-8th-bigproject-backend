@@ -91,7 +91,7 @@ public class AuthEmailController {
 
         return Map.of(
                 "ok", true,
-                "userId", user.getId(),
+                "userId",user.getIntegrationId(),
                 "role", user.getRole()
         );
     }

@@ -2,6 +2,8 @@ package com.aivle.ai0917.ipai.domain.admin.info.repository;
 
 import com.aivle.ai0917.ipai.domain.admin.info.model.AdminNotice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,4 +28,16 @@ public interface AdminNoticeRepository extends JpaRepository<AdminNotice, Long> 
      * 읽지 않은 알림 개수 조회
      */
     long countByIsReadFalseAndTargetRole(String targetRole);
+
+    /**
+     * 읽지 않은 모든 알림 조회
+     */
+    List<AdminNotice> findByIsReadFalseOrderByCreatedAtDesc();
+
+    /**
+     * 모든 알림 읽음 처리
+     */
+    @Modifying
+    @Query("UPDATE AdminNotice n SET n.isRead = true WHERE n.isRead = false")
+    void markAllAsRead();
 }

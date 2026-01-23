@@ -3,6 +3,7 @@ package com.aivle.ai0917.ipai.domain.user.controller;
 import com.aivle.ai0917.ipai.domain.admin.access.model.UserRole;
 import com.aivle.ai0917.ipai.domain.user.model.User;
 import com.aivle.ai0917.ipai.domain.user.repository.UserRepository;
+import com.aivle.ai0917.ipai.domain.user.service.UserService;
 import com.aivle.ai0917.ipai.infra.naver.service.EmailVerificationService;
 import com.aivle.ai0917.ipai.global.security.jwt.JwtProvider;
 import com.aivle.ai0917.ipai.global.security.jwt.PendingSignupTokenProvider;
@@ -27,7 +28,7 @@ public class SignupController {
 
     private final PendingSignupTokenProvider pendingTokenProvider;
     private final EmailVerificationService emailVerificationService;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
@@ -40,13 +41,15 @@ public class SignupController {
     public SignupController(
             PendingSignupTokenProvider pendingTokenProvider,
             EmailVerificationService emailVerificationService,
-            UserRepository userRepository,
+//            UserRepository userRepository,
+            UserService userService,
             PasswordEncoder passwordEncoder,
             JwtProvider jwtProvider
     ) {
         this.pendingTokenProvider = pendingTokenProvider;
         this.emailVerificationService = emailVerificationService;
-        this.userRepository = userRepository;
+        this.userService = userService;
+//        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtProvider = jwtProvider;
     }
@@ -143,7 +146,7 @@ public class SignupController {
         }
 
         // ✅ 이메일 중복 방지
-        if (userRepository.existsBySiteEmail(siteEmail)) {
+        if (userService.existsBySiteEmail(siteEmail)) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
 
@@ -162,7 +165,7 @@ public class SignupController {
                 .role(UserRole.Author)
                 .build();
 
-        User saved = userRepository.save(user);
+        User saved = userService.registerUser(user);
 
         // ✅ 가입 완료와 동시에 로그인 처리(accessToken 쿠키 발급)
         String accessJwt = jwtProvider.createAccessToken(saved.getId(), user.getRole());

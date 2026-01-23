@@ -249,4 +249,12 @@ public class AdminNoticeAggregationService {
                 ? text.substring(0, maxLength) + "..."
                 : text;
     }
+
+    @Transactional(readOnly = true)
+    public List<UnifiedAdminNoticeDto> getUnreadAdminNotices() {
+        return adminNoticeRepository.findByIsReadFalseOrderByCreatedAtDesc()
+                .stream()
+                .map(this::convertAdminNoticeToDto)
+                .collect(Collectors.toList());
+    }
 }

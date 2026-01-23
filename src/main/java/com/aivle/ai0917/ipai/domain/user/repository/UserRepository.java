@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByNaverId(String naverId);
 
+    // 고유 식별자로 사용자 조회
+    Optional<User> findByIntegrationId(String integrationId);
     //이메일 로그인용
     Optional<User> findBySiteEmail(String siteEmail);
 

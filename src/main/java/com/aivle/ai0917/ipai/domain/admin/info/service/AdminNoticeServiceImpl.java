@@ -320,4 +320,23 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
                 ? text.substring(0, maxLength) + "..."
                 : text;
     }
+
+    @Override
+    @Transactional
+    public void markAllAsRead() {
+        // 1. 통합 알림 테이블(admin_notices) 업데이트
+        adminNoticeRepository.markAllAsRead();
+
+        // 2. 시스템 로그 테이블 업데이트 (읽지 않은 것만 찾아 markAsRead 실행 또는 벌크 업데이트)
+        systemLogRepository.findAll().stream()
+                .filter(log -> !Boolean.TRUE.equals(log.getIsRead()))
+                .forEach(SystemLog::markAsRead);
+
+        // 3. 배포 정보 테이블 업데이트
+        deploymentInfoRepository.findAll().stream()
+                .filter(deploy -> !Boolean.TRUE.equals(deploy.getIsRead()))
+                .forEach(DeploymentInfo::markAsRead);
+
+        log.info("All notifications have been marked as read.");
+    }
 }

@@ -50,9 +50,13 @@ public class SecurityConfig {
                                 "/api/v1/login",
                                 "/api/v1/api/test",
 
+                                "/api/v1/admin/sysnotice/**",
                                 "/api/v1/admin/notice/**",
                                 "/api/v1/admin/dashboard/**",
-                                "/api/v1/admin/access/**"
+                                "/api/v1/admin/access/**",
+
+                                "/api/v1/author/dashboard/**"
+
                         ).permitAll()
 
                         // 네이버 OAuth 시작/콜백은 공개

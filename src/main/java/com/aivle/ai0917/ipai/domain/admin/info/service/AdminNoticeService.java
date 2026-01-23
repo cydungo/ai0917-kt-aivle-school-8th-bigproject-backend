@@ -47,4 +47,10 @@ public interface AdminNoticeService {
      * @param id 알림 ID
      */
     void markAsRead(String source, Long id);
+
+    /**
+     *
+     *
+     */
+    void markAllAsRead();
 }
