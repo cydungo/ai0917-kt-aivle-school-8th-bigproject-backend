@@ -21,4 +21,7 @@ public interface UserService {
     // ✅ 추가: 비밀번호 변경(내부에서 인코딩 + 저장까지)
     void updateSitePassword(String siteEmail, String rawNewPassword);
 
+    // ✅ 추가: 계정 탈퇴 처리 */
+    void deactivated(Long userId);
+
 }
