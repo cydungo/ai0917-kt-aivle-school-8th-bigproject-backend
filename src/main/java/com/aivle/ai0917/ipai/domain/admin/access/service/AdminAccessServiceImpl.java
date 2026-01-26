@@ -46,6 +46,7 @@ public class AdminAccessServiceImpl implements AdminAccessService {
                         .siteEmail(user.getSiteEmail())
                         .role(user.getRole())
                         .createdAt(user.getCreatedAt())
+                        .lastActivityAt(user.getLastActivityAt())
                         .build());
     }
 
