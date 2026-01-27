@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
-@RequestMapping("/api/v1/admin/notice")
+@RequestMapping("/api/v1/notice")
 @RequiredArgsConstructor
 public class NoticeController {
 
@@ -152,4 +152,6 @@ public class NoticeController {
         noticeService.deleteNoticeFile(id);
         return ResponseEntity.ok().build();
     }
+
+
 }
