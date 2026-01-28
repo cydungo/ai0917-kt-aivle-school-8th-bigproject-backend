@@ -44,6 +44,7 @@ public class SecurityConfig {
                         // 공개 API만 정확히 오픈
                         .requestMatchers(
                                 "/api/v1/hello",
+                                "/api/v1/ai/**",
                                 "/api/v1/api/test",
 
                                 "/api/v1/auth/naver/hello",
@@ -52,12 +53,14 @@ public class SecurityConfig {
                                 "/api/v1/api/test",
 
                                 "/api/v1/admin/sysnotice/**",
-                                "/api/v1/admin/notice/**",
+                                "/api/v1/notice/**",
                                 "/api/v1/admin/dashboard/**",
                                 "/api/v1/admin/access/**",
 
                                 "/api/v1/author/dashboard/**",
-                                "/api/v1/author/works/**"
+                                "/api/v1/author/works/**",
+                                "/api/v1/author/manuscript/**",
+                                "/api/v1/author/**"
 
                         ).permitAll()
 
