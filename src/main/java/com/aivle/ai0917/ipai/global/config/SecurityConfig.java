@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 "/api/v1/signup/naver/complete",
                                 "/api/v1/admin/sysnotice/**",
                                 "/api/v1/**"
+
                         )
                 )
 
@@ -57,7 +58,12 @@ public class SecurityConfig {
                                 "/api/v1/admin/access/**",
 
                                 "/api/v1/author/dashboard/**",
-                                "/api/v1/author/works/**"
+                                "/api/v1/author/works/**",
+                                "/api/v1/manager/author/{pwd}",
+                                "/api/v1/author/manager/code",
+                                "/error/**",
+                                "/api/v1/manage/**r",
+                                "/api/v1/author/manager/**"
 
                         ).permitAll()
 
@@ -81,6 +87,7 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable());
 
         http.addFilterBefore(new JwtAuthFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }

@@ -16,5 +16,10 @@ public interface WorkRepository extends JpaRepository<Work, Long> { // ID 타입
     // userIntegrationId로 삭제
     void deleteByUserIntegrationId(String userIntegrationId);
 
+    //특정 작가의 전체 작품 수
+    long countByUserIntegrationId(String userIntegratoinId);
+
+    // 특정 작가의 최근 작품 5개
+    List<Work> findTop5ByUserIntegrationIdOrderByCreatedAtDesc(String userIntegrationId);
 
 }
