@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/manager")
+@RequestMapping("/api/v1/manager/authors")
 public class ManagerAuthorController {
 
     private final ManagerAuthorService managerAuthorService;
@@ -24,7 +24,7 @@ public class ManagerAuthorController {
     }
 
     // POST /api/v1/manager/author/{pwd}
-    @PostMapping("/authors/{pwd}")
+    @PostMapping("/{pwd}")
     public Map<String, Object> matchAuthor(@PathVariable("pwd") String pwd,
                                            Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Long userId)) {
