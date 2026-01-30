@@ -217,3 +217,79 @@
 //                .build();
 //    }
 //}
+
+// dummy 값 하기
+package com.aivle.ai0917.ipai.domain.manager.authors.service;
+
+import com.aivle.ai0917.ipai.domain.manager.authors.dto.*;
+//import com.aivle.ai0917.ipai.domain.manager.authors.repository.ManagerAuthorRepository;
+import com.aivle.ai0917.ipai.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * ✅ 매니저 작가 조회 서비스 구현체 (임시 비활성화 버전)
+ * @Service 어노테이션을 유지하여 애플리케이션 시작 시 'Bean Not Found' 에러를 방지합니다.
+ */
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor // 생성자 주입 자동 생성
+public class ManagerAuthorQueryServiceImpl implements ManagerAuthorQueryService {
+
+    private final UserRepository userRepository;
+//    private final ManagerAuthorRepository managerAuthorRepository;
+
+    /**
+     * ✅ 작가 현황 요약 (로직 주석 처리)
+     */
+    @Override
+    public AuthorSummaryResponseDto getSummary(Long managerUserId) {
+        /*
+        // 1) 로그인된 매니저 PK로 User 엔티티 조회
+        User manager = userRepository.findById(managerUserId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        // ... (이하 생략)
+        */
+
+        // 빈 응답 객체 반환 (에러 방지용)
+        return AuthorSummaryResponseDto.builder().build();
+    }
+
+    /**
+     * ✅ 작가 목록 조회 (로직 주석 처리)
+     */
+    @Override
+    public Page<AuthorCardResponseDto> getAuthors(Long managerUserId, String keyword, Pageable pageable) {
+        /*
+        // 1) 로그인된 매니저 PK로 조회
+        User manager = userRepository.findById(managerUserId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        // ... (이하 생략)
+        */
+
+        // 빈 페이지 반환
+        return Page.empty();
+    }
+
+    /**
+     * ✅ 작가 상세 정보 (로직 주석 처리)
+     */
+    @Override
+    public AuthorDetailResponseDto getAuthorDetail(Long managerUserId, Long authorId) {
+        /*
+        // 1) 매니저 조회
+        User manager = userRepository.findById(managerUserId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        // ... (이하 생략)
+        */
+
+        // null 또는 더미 객체 반환
+        return null;
+    }
+}
