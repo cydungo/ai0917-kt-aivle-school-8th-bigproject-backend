@@ -27,7 +27,7 @@ public class SecurityConfig {
                 // ✅ HttpOnly 쿠키 인증이면 CSRF 켜는 것을 권장
                 // 프론트는 XSRF-TOKEN 쿠키를 읽어서 X-XSRF-TOKEN 헤더로 보내면 됨
                 .csrf(csrf -> csrf
-                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         // OAuth 콜백은 GET이라 보통 CSRF 영향 없음.
                         // 필요하면 특정 경로만 ignore도 가능 (원하면 아래처럼)
                         // .ignoringRequestMatchers("/api/v1/auth/naver/**")
@@ -62,8 +62,12 @@ public class SecurityConfig {
                                 "/api/v1/author/manuscript/**",
                                 "/api/v1/author/**",
 
-                                "/api/v1/manager/iptrend/**"
+                                "/api/v1/manager/iptrend/**",
 
+                                "/api/v1/author/**",
+                                "/error",
+                                "/api/v1/author/manager/**",
+                                "api/v1/manager/**"
 
                         ).permitAll()
 
