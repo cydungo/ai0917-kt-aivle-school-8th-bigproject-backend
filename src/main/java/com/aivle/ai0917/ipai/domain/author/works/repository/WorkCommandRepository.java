@@ -1,0 +1,54 @@
+package com.aivle.ai0917.ipai.domain.author.works.repository;
+
+import com.aivle.ai0917.ipai.domain.author.works.model.Work;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
+
+public interface WorkCommandRepository extends Repository<Work, Long> {
+
+    @Transactional
+    @Query(value = """
+        INSERT INTO works (universe_id, primary_author_id, title, synopsis, genre, cover_image_url, status)
+        VALUES (:universeId, :authorId, :title, :synopsis, :genre, :coverImageUrl, '연재중')
+        RETURNING id
+        """, nativeQuery = true)
+    Long insert(
+            @Param("universeId") Long universeId,
+            @Param("authorId") String authorId,
+            @Param("title") String title,
+            @Param("synopsis") String synopsis,
+            @Param("genre") String genre,
+            @Param("coverImageUrl") String coverImageUrl
+    );
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE works SET status = :status WHERE id = :id", nativeQuery = true)
+    int updateStatus(@Param("id") Long id, @Param("status") String status);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        UPDATE works
+        SET title = :title,
+            synopsis = :synopsis,
+            genre = :genre,
+            cover_image_url = :coverImageUrl
+        WHERE id = :id
+        """, nativeQuery = true)
+    int updateWork(
+            @Param("id") Long id,
+            @Param("title") String title,
+            @Param("synopsis") String synopsis,
+            @Param("genre") String genre,
+            @Param("coverImageUrl") String coverImageUrl
+    );
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE works SET deleted_at = CURRENT_TIMESTAMP WHERE id = :id", nativeQuery = true)
+    int deleteById(@Param("id") Long id); // 쿼리 내용을 Soft Delete로 변경
+}

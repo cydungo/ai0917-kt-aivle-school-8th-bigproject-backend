@@ -58,7 +58,6 @@ public class SecurityConfig {
                                 "/api/v1/admin/access/**",
 
                                 "/api/v1/author/dashboard/**",
-                                "/api/v1/author/works/**",
                                 "/api/v1/author/manuscript/**",
                                 "/api/v1/author/**",
 
@@ -67,7 +66,9 @@ public class SecurityConfig {
                                 "/api/v1/author/**",
                                 "/error",
                                 "/api/v1/author/manager/**",
-                                "api/v1/manager/**"
+                                "api/v1/manager/**",
+
+                                "/api/v1/author/works/**"
 
                         ).permitAll()
 

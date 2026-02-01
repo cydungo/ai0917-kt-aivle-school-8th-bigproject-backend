@@ -1,53 +1,54 @@
 package com.aivle.ai0917.ipai.domain.author.lorebook.repository;
 
-import com.aivle.ai0917.ipai.domain.author.lorebook.model.SettingBookView; // 엔티티 임포트
+import com.aivle.ai0917.ipai.domain.author.lorebook.model.SettingBookView;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import java.util.UUID;
+public interface SettingBookCommandRepository extends Repository<SettingBookView, Long> {
 
-// Object를 SettingBookView로 변경
-public interface SettingBookCommandRepository extends Repository<SettingBookView, String> {
-
+    // [수정] user_id 저장 시 ARRAY[:userId]로 감싸서 배열로 저장
     @Modifying
     @Transactional
     @Query(value = """
-        INSERT INTO setting (userid, title, tag, keyword, episode, subtitle, settings)
-        VALUES (:userid, :title, :tag, :keyword, :episode, :subtitle, CAST(:settings AS json))
+        INSERT INTO lorebooks (
+            user_id, work_id, category, keyword, setting, ep_num, created_at, updated_at
+        )
+        VALUES (
+            ARRAY[:userId]::varchar[], :workId, :category, :keyword, CAST(:setting AS jsonb), :epNum, NOW(), NOW()
+        )
         """, nativeQuery = true)
     void insert(
-            @Param("userid") String[] userid,
-            @Param("title") String title,
-            @Param("tag") String tag,
+            @Param("userId") String userId,
+            @Param("workId") Long workId,
+            @Param("category") String category,
             @Param("keyword") String keyword,
-            @Param("episode") Integer[] episode,
-            @Param("subtitle") String subtitle,
-            @Param("settings") String settings
+            @Param("setting") String setting,
+            @Param("epNum") Integer[] epNum
     );
 
+    // [수정] user_id 비교 시 = ANY(...) 사용 (배열 안에 해당 유저가 있는지 확인)
     @Modifying
     @Transactional
     @Query(value = """
-        UPDATE setting
-        SET title = :title,
-            keyword = :keyword,
-            subtitle = :subtitle,
-            settings = CAST(:settings AS json)
-        WHERE id = :id
+        UPDATE lorebooks
+        SET keyword = :keyword,
+            setting = CAST(:setting AS jsonb),
+            updated_at = NOW()
+        WHERE id = :id AND :userId = ANY(user_id)
         """, nativeQuery = true)
     int update(
-            @Param("id") UUID id,
-            @Param("title") String title,
+            @Param("id") Long id,
+            @Param("userId") String userId,
             @Param("keyword") String keyword,
-            @Param("subtitle") String subtitle,
-            @Param("settings") String settings
+            @Param("setting") String setting
     );
 
+    // 삭제는 ID 기준이므로 변경 없음 (Soft Delete)
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM setting WHERE id = :id", nativeQuery = true)
-    int delete(@Param("id") UUID id);
+    @Query(value = "UPDATE lorebooks SET deleted_at = NOW() WHERE id = :id", nativeQuery = true)
+    int delete(@Param("id") Long id);
 }
