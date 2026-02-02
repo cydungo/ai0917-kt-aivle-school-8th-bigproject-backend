@@ -52,7 +52,7 @@ public class WorkServiceImpl implements WorkService {
                 dto.getSynopsis(),
                 dto.getGenre(),
                 dto.getCoverImageUrl(),
-                WorkStatus.ONGOING.name() // DB에 저장될 문자열 값
+                WorkStatus.NEW.name() // DB에 저장될 문자열 값
         );
     }
 
