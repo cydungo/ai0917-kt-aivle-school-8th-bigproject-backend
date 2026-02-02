@@ -52,7 +52,9 @@ public class AuthMeController {
             return Map.ofEntries(
                     Map.entry("type", "AUTH"),
 
-                    Map.entry("userId", user.getIntegrationId()),
+                    Map.entry("userId", user.getId()),
+
+                    Map.entry("integrationId", user.getIntegrationId()),
 
                     Map.entry("managerIntegrationId",
                             user.getManagerIntegrationId() == null ? "" : user.getManagerIntegrationId()),
