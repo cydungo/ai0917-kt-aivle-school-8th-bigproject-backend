@@ -18,8 +18,8 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     );
 
     // ✅ 매니저 화면: 작품 수 카운트
-    long countByPrimaryAuthorIdAndStatusNot(String primaryAuthorId, String status);
+    long countByPrimaryAuthorIdAndStatusNot(String primaryAuthorId, WorkStatus status);
 
     // ✅ 매니저 상세: 최근 작품 5개
-    List<Work> findTop5ByPrimaryAuthorIdAndStatusNotOrderByCreatedAtDesc(String primaryAuthorId, String status);
+    List<Work> findTop5ByPrimaryAuthorIdAndStatusNotOrderByCreatedAtDesc(String primaryAuthorId, WorkStatus status);
 }
