@@ -66,7 +66,8 @@ public class SecurityConfig {
                                 "/api/v1/author/**",
                                 "/error",
                                 "/api/v1/author/manager/**",
-                                "api/v1/manager/**",
+                                "/api/v1/manager/**",
+                                "/api/v1/manager/dashboard/**",
 
                                 "/api/v1/author/works/**"
 
