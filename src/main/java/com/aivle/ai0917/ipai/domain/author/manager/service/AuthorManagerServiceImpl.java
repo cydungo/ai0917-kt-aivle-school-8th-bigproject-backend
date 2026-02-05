@@ -68,4 +68,24 @@ public class AuthorManagerServiceImpl implements AuthorManagerService {
                 .managerSiteEmail(manager.getSiteEmail())
                 .build();
     }
+
+
+    @Override
+    @Transactional
+    public void deleteMyManager(Long authorUserId) {
+
+        User author = userRepository.findById(authorUserId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        if (author.getRole() != UserRole.Author) {
+            throw new RuntimeException("작가(Author)만 삭제할 수 있습니다.");
+        }
+
+        if (author.getManagerIntegrationId() == null || author.getManagerIntegrationId().isBlank()) {
+            return;
+        }
+
+        author.setManagerIntegrationId(null);
+        userRepository.save(author);
+    }
 }
