@@ -24,6 +24,6 @@ public interface ManuscriptRepository extends JpaRepository<ManuscriptView, Long
     )
     Integer findMaxEpisodeByWorkId(@Param("workId") Long workId);
 
-    boolean existsByWorkIdAndIsReadOnlyFalse(Long workId);
+    boolean existsByWorkIdAndIsReadOnlyFalseAndDeletedAtIsNull(Long workId);
 
 }
