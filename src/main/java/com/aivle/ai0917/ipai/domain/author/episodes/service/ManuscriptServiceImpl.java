@@ -68,7 +68,7 @@ public class ManuscriptServiceImpl implements ManuscriptService {
     @Transactional
     public Long uploadManuscript(ManuscriptRequestDto request) {
 
-        boolean hasPendingAnalysis = manuscriptRepository.existsByWorkIdAndIsReadOnlyFalseAndDeletedAtIsNull(request.getWorkId());
+        boolean hasPendingAnalysis = manuscriptRepository.existsByWorkIdAndIsReadOnlyFalse(request.getWorkId());
 
         if (hasPendingAnalysis) {
             log.warn("업로드 차단: 작품 ID {}에 분석 중인(is_read_only=false) 에피소드가 존재합니다.", request.getWorkId());
