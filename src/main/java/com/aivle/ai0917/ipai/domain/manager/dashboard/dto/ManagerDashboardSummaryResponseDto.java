@@ -12,7 +12,5 @@ import lombok.NoArgsConstructor;
 public class ManagerDashboardSummaryResponseDto {
     private long pendingProposals;
     private long managedAuthors;
-    private int todayDau;
-    private int yesterdayDau;
-    private double dauChangeRate;
+    private long activeAuthors;
 }
