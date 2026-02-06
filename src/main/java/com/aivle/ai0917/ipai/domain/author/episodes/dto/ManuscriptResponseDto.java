@@ -14,6 +14,7 @@ public class ManuscriptResponseDto {
     private Integer episode;
     private String subtitle;
     private String txt;
+    private boolean isReadOnly ;
 
     public ManuscriptResponseDto(ManuscriptView manuscript, String txt) {
         this.id = manuscript.getId();
@@ -23,6 +24,7 @@ public class ManuscriptResponseDto {
         this.episode = manuscript.getEpisode();
         this.subtitle = manuscript.getSubtitle();
         this.txt = txt;
+        this.isReadOnly = manuscript.isReadOnly();
     }
 
     public ManuscriptResponseDto(ManuscriptView manuscript) {
