@@ -30,7 +30,6 @@ public class ManagerDashboardServiceImpl implements ManagerDashboardService {
 
     private final UserRepository userRepository;
     private final ManagerAuthorRepository managerAuthorRepository;
-    private final DailyActiveUserRepository dailyActiveUserRepository;
     private final NoticeRepository noticeRepository;
 
     @Override
@@ -55,38 +54,18 @@ public class ManagerDashboardServiceImpl implements ManagerDashboardService {
                 UserRole.Author, managerIntegrationId
         );
 
-        int todayDau = countTodayDau();
-        int yesterdayDau = getYesterdayDau();
-        double changeRate = calculateChangeRate(todayDau, yesterdayDau);
+        long activeAuthors = managerAuthorRepository.countByRoleAndManagerIntegrationIdAndLastActivityAtGreaterThanEqual(
+                UserRole.Author, managerIntegrationId, LocalDateTime.now().minusHours(1)
+        );
 
         return ManagerDashboardSummaryResponseDto.builder()
                 .pendingProposals(0L)
                 .managedAuthors(managedAuthors)
-                .todayDau(todayDau)
-                .yesterdayDau(yesterdayDau)
-                .dauChangeRate(changeRate)
+                .activeAuthors(activeAuthors)
                 .build();
     }
 
-    private int countTodayDau() {
-        LocalDate today = LocalDate.now();
-        return userRepository.countActiveUsersBetween(today.atStartOfDay(), LocalDateTime.now());
-    }
 
-    private int getYesterdayDau() {
-        LocalDate today = LocalDate.now();
-        return dailyActiveUserRepository.findByDate(today.minusDays(1).atStartOfDay())
-                .map(DailyActiveUser::getCount)
-                .orElse(0);
-    }
-
-    private double calculateChangeRate(int today, int yesterday) {
-        if (yesterday == 0) {
-            return 0.0;
-        }
-        double rate = ((double) (today - yesterday) / yesterday) * 100.0;
-        return Math.round(rate * 10.0) / 10.0;
-    }
 
     private List<ManagerDashboardNoticeDto> getRecentNotices(int limit) {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
