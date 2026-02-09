@@ -37,14 +37,14 @@ public class AuthEmailController {
     private final JwtProvider jwtProvider;
     private final UserService userService;
 
-    @Value("${security.cookie.secure:false}")
+    @Value("${security.cookie.secure:true}")
     private boolean cookieSecure;
 
     @Value("${security.cookie.same-site:Lax}")
     private String sameSite;
 
     // accessToken 쿠키 유효시간(분). 필요하면 yml로 빼도 됨
-    @Value("${security.access.exp-minutes:60}")
+    @Value("${security.access.exp-minutes:30}")
     private long accessExpMinutes;
 
     // refreshToken 쿠키 유효시간(일)
