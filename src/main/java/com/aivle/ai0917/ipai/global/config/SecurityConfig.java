@@ -62,7 +62,7 @@ public class SecurityConfig {
 
                         // 로그아웃 공개 (CSRF는 여기서도 필요하면 프론트가 보내면 됨)
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").permitAll()
-
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh").permitAll()
                         // 공개 엔드포인트
                         .requestMatchers(
                                 "/api/v1/hello",
