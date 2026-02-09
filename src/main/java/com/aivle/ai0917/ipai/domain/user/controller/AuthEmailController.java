@@ -1,7 +1,7 @@
 package com.aivle.ai0917.ipai.domain.user.controller;
 
 
-
+import com.aivle.ai0917.ipai.global.security.jwt.CurrentUserId;
 import com.aivle.ai0917.ipai.domain.admin.access.model.UserRole;
 import com.aivle.ai0917.ipai.domain.user.service.UserService;
 import com.aivle.ai0917.ipai.infra.naver.dto.LoginRequest;
@@ -123,15 +123,11 @@ public class AuthEmailController {
 
     /**
      * 계정 탈퇴
-     * @param authentication
      * @param response
      * @return
      */
     @PostMapping("/deactivated")
-    public Map<String, Object> withdraw(Authentication authentication, HttpServletResponse response) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Long userId)) {
-            throw new RuntimeException("인증 정보가 없습니다.");
-        }
+    public Map<String, Object> withdraw(@CurrentUserId Long userId, HttpServletResponse response) {
 
         // 1. DB 상태 변경 (Deactivated)
         userService.deactivated(userId);

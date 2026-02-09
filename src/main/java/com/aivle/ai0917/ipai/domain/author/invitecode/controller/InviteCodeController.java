@@ -1,5 +1,6 @@
 package com.aivle.ai0917.ipai.domain.author.invitecode.controller;
 
+import com.aivle.ai0917.ipai.global.security.jwt.CurrentUserId;
 import com.aivle.ai0917.ipai.domain.author.invitecode.service.InviteCodeService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +19,7 @@ public class InviteCodeController {
 
     // POST /api/v1/author/manager/code
     @PostMapping("/code")
-    public Map<String, Object> createCode(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Long userId)) {
-            throw new RuntimeException("인증 정보가 없습니다.");
-        }
+    public Map<String, Object> createCode(@CurrentUserId Long userId) {
         return inviteCodeService.createInviteCode(userId);
     }
 }

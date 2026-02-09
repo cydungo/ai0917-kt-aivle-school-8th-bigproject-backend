@@ -1,5 +1,6 @@
 package com.aivle.ai0917.ipai.domain.manager.dashboard.controller;
 
+import com.aivle.ai0917.ipai.global.security.jwt.CurrentUserId;
 import com.aivle.ai0917.ipai.domain.manager.dashboard.dto.ManagerDashboardPageResponseDto;
 import com.aivle.ai0917.ipai.domain.manager.dashboard.dto.ManagerDashboardSummaryResponseDto;
 import com.aivle.ai0917.ipai.domain.manager.dashboard.service.ManagerDashboardService;

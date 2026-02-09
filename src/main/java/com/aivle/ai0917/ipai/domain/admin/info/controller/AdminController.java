@@ -1,5 +1,6 @@
 package com.aivle.ai0917.ipai.domain.admin.info.controller;
 
+import com.aivle.ai0917.ipai.global.security.jwt.CurrentUserId;
 import com.aivle.ai0917.ipai.domain.admin.info.dto.UnifiedAdminNoticeDto;
 import com.aivle.ai0917.ipai.domain.admin.info.service.AdminNoticeAggregationService;
 import com.aivle.ai0917.ipai.domain.admin.info.service.AdminNoticeService;
@@ -67,7 +68,7 @@ public class AdminController {
      * @return SSE Emitter
      */
     @GetMapping(value = "/subscribe", produces = "text/event-stream;charset=UTF-8")
-    public SseEmitter subscribe(@RequestParam Long adminId, jakarta.servlet.http.HttpServletResponse response)  {
+    public SseEmitter subscribe(@CurrentUserId Long adminId, jakarta.servlet.http.HttpServletResponse response)  {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/event-stream;charset=UTF-8");
 

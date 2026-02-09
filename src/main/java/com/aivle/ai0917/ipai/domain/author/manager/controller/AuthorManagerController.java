@@ -1,5 +1,6 @@
 package com.aivle.ai0917.ipai.domain.author.manager.controller;
 
+import com.aivle.ai0917.ipai.global.security.jwt.CurrentUserId;
 import com.aivle.ai0917.ipai.domain.author.manager.dto.AuthorManagerResponseDto;
 import com.aivle.ai0917.ipai.domain.author.manager.service.AuthorManagerService;
 import org.springframework.security.core.Authentication;
@@ -27,10 +28,7 @@ public class AuthorManagerController {
      * - Service로 전달해 "내 매니저"를 조회
      */
     @GetMapping("/manager")
-    public AuthorManagerResponseDto getMyManager(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Long userId)) {
-            throw new RuntimeException("인증 정보가 없습니다.");
-        }
+    public AuthorManagerResponseDto getMyManager(@CurrentUserId Long userId) {
         return authorManagerService.getMyManager(userId);
     }
 

@@ -3,6 +3,7 @@ package com.aivle.ai0917.ipai.domain.user.controller;
 import com.aivle.ai0917.ipai.domain.user.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.aivle.ai0917.ipai.global.security.jwt.CurrentUserId;
 
 import java.util.Map;
 
@@ -23,11 +24,7 @@ public class AuthPasswordController {
      */
     @PostMapping("/password/reset")
     public Map<String, Object> resetPasswordAfterLogin(@RequestBody Map<String, String> body,
-                                                       Authentication authentication) {
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("인증이 필요합니다.");
-        }
+                                                       @CurrentUserId Long userId) {
 
         String currentPassword = body.get("currentPassword");
         String newPassword = body.get("newPassword");
@@ -39,7 +36,7 @@ public class AuthPasswordController {
         if (!newPassword.equals(newPasswordRetype)) throw new RuntimeException("비밀번호가 일치하지 않습니다.");
 
 
-        Long userId = (Long) authentication.getPrincipal();
+
 
         userService.changePasswordAfterLogin(userId, currentPassword, newPassword);
 
