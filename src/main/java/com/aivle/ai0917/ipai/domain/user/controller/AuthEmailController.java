@@ -37,7 +37,7 @@ public class AuthEmailController {
     private final JwtProvider jwtProvider;
     private final UserService userService;
 
-    @Value("${security.cookie.secure:true}")
+    @Value("${security.cookie.secure:false}")
     private boolean cookieSecure;
 
     @Value("${security.cookie.same-site:Lax}")

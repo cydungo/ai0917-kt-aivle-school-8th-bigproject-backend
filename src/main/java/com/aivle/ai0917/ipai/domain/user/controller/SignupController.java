@@ -34,7 +34,7 @@ public class SignupController {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    @Value("${security.cookie.secure:true}")
+    @Value("${security.cookie.secure:false}")
     private boolean cookieSecure;
 
     @Value("${security.cookie.same-site:Lax}")
