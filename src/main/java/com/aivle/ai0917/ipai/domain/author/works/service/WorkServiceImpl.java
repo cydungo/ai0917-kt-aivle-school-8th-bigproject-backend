@@ -1,22 +1,26 @@
 package com.aivle.ai0917.ipai.domain.author.works.service;
 
+import com.aivle.ai0917.ipai.domain.author.info.dto.AuthorNoticeDto;
+import com.aivle.ai0917.ipai.domain.author.info.service.AuthorNoticeService;
 import com.aivle.ai0917.ipai.domain.author.works.dto.WorkDto;
 import com.aivle.ai0917.ipai.domain.author.works.model.Work;
 import com.aivle.ai0917.ipai.domain.author.works.model.WorkStatus; // Import
 import com.aivle.ai0917.ipai.domain.author.works.repository.WorkCommandRepository;
 import com.aivle.ai0917.ipai.domain.author.works.repository.WorkRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WorkServiceImpl implements WorkService {
 
     private final WorkRepository workRepository;
     private final WorkCommandRepository workCommandRepository;
+    private final AuthorNoticeService authorNoticeService;
 
     @Override
     public List<WorkDto.Response> getWorksByAuthor(String authorId, boolean sortByTitle) {
@@ -45,21 +49,43 @@ public class WorkServiceImpl implements WorkService {
     @Override
     public Long saveWork(WorkDto.CreateRequest dto) {
         // [수정] 기본값으로 WorkStatus.ONGOING.name() 사용
-        return workCommandRepository.insert(
+
+        Long workId = workCommandRepository.insert(
                 dto.getUniverseId(),
                 dto.getPrimaryAuthorId(),
                 dto.getTitle(),
                 dto.getSynopsis(),
                 dto.getGenre(),
                 dto.getCoverImageUrl(),
-                WorkStatus.NEW.name() // DB에 저장될 문자열 값
+                WorkStatus.NEW.name()
         );
+        // 2. 알림 발송 (작품 생성 완료)
+        sendWorkNotice(
+                dto.getPrimaryAuthorId(), // String ID 그대로 전달
+                "작품 생성 완료",
+                "새로운 작품 '" + dto.getTitle() + "'이(가) 성공적으로 생성되었습니다.",
+                "/works/" + workId
+        );
+        return workId;
     }
 
     @Override
     public void updateStatus(Long id, WorkStatus status) {
-        // [수정] Enum.name()으로 문자열 변환하여 전달
+        // 1. 상태 업데이트 수행
         workCommandRepository.updateStatus(id, status.name());
+
+        // 2. 알림 발송 (상태 변경)
+        workRepository.findById(id).ifPresent(work -> {
+            String message = String.format("'%s'의 상태가 %s(으)로 변경되었습니다.",
+                    work.getTitle(), status.getDescription());
+
+            sendWorkNotice(
+                    work.getPrimaryAuthorId(),
+                    "작품 상태 변경",
+                    message,
+                    "/works/" + id
+            );
+        });
     }
 
     @Override
@@ -75,9 +101,37 @@ public class WorkServiceImpl implements WorkService {
 
     @Override
     public void deleteWork(Long id) {
+        Work work = workRepository.findById(id).orElse(null);
         workCommandRepository.deleteById(id);
+
+        // 2. 알림 발송 (작품 삭제)
+        if (work != null) {
+            sendWorkNotice(
+                    work.getPrimaryAuthorId(),
+                    "작품 삭제",
+                    "'" + work.getTitle() + "' 작품이 삭제되었습니다.",
+                    "/works"
+            );
+        }
     }
 
+
+    private void sendWorkNotice(String authorIdStr, String title, String message, String url) {
+        try {
+
+            authorNoticeService.sendNotice(
+                    authorIdStr,
+                    AuthorNoticeDto.AuthorNoticeSource.WORK_PROCESS, // Enum 사용
+                    title,
+                    message,
+                    url
+            );
+        } catch (NumberFormatException e) {
+            log.warn("알림 발송 실패: AuthorID 변환 오류 (ID: {})", authorIdStr);
+        } catch (Exception e) {
+            log.error("알림 발송 중 예외 발생", e);
+        }
+    }
     private WorkDto.Response convertToResponse(Work view) {
         return WorkDto.Response.builder()
                 .id(view.getId())

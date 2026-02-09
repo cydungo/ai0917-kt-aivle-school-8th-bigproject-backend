@@ -1,11 +1,15 @@
 package com.aivle.ai0917.ipai.domain.author.manager.service;
 
 import com.aivle.ai0917.ipai.domain.admin.access.model.UserRole;
+import com.aivle.ai0917.ipai.domain.author.info.dto.AuthorNoticeDto;
+import com.aivle.ai0917.ipai.domain.author.info.service.AuthorNoticeService;
 import com.aivle.ai0917.ipai.domain.author.manager.dto.AuthorManagerResponseDto;
 import com.aivle.ai0917.ipai.domain.user.model.User;
+
 import com.aivle.ai0917.ipai.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 작가 -> 자기 매니저 조회 서비스 구현체
@@ -19,13 +23,16 @@ import org.springframework.transaction.annotation.Transactional;
  * 5) role이 Manager인지 확인 후 DTO로 응답
  */
 @Service
+
 @Transactional(readOnly = true)
 public class AuthorManagerServiceImpl implements AuthorManagerService {
 
     private final UserRepository userRepository;
+    private final AuthorNoticeService authorNoticeService;
 
-    public AuthorManagerServiceImpl(UserRepository userRepository) {
+    public AuthorManagerServiceImpl(UserRepository userRepository, AuthorNoticeService authorNoticeService) {
         this.userRepository = userRepository;
+        this.authorNoticeService = authorNoticeService;
     }
 
     @Override
@@ -84,8 +91,19 @@ public class AuthorManagerServiceImpl implements AuthorManagerService {
         if (author.getManagerIntegrationId() == null || author.getManagerIntegrationId().isBlank()) {
             return;
         }
+        String oldManagerId = author.getManagerIntegrationId();
 
+        // 매니저 해제 (DB 반영)
         author.setManagerIntegrationId(null);
         userRepository.save(author);
+
+        // 알림 발송 (백업해둔 oldManagerId 사용)
+        authorNoticeService.sendNotice(
+                author.getIntegrationId(),
+                AuthorNoticeDto.AuthorNoticeSource.INVITE,
+                "매니저 연결 해제",
+                "매니저(" + oldManagerId + ")와의 연결이 해제되었습니다.",
+                "/author/manager" // 클릭 시 이동할 페이지
+        );
     }
 }
