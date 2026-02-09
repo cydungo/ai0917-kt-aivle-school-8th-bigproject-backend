@@ -13,8 +13,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;;
+
 
 import java.time.Duration;
 import java.util.Map;
@@ -30,6 +35,7 @@ public class AuthEmailController {
     private final JwtProvider jwtProvider;
     private final UserService userService;
 
+    private final CsrfTokenRepository csrfTokenRepository;
     @Value("${security.cookie.secure:false}")
     private boolean cookieSecure;
 
@@ -42,11 +48,16 @@ public class AuthEmailController {
 
     public AuthEmailController(UserRepository userRepository,
                                PasswordEncoder passwordEncoder,
-                               JwtProvider jwtProvider, UserService userService) {
+                              // JwtProvider jwtProvider, UserService userService) {
+                               JwtProvider jwtProvider,
+                               UserService userService,
+                               CsrfTokenRepository csrfTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtProvider = jwtProvider;
         this.userService = userService;
+        this.csrfTokenRepository = csrfTokenRepository;
+
     }
 
     /**
@@ -56,6 +67,7 @@ public class AuthEmailController {
      */
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody LoginRequest req,
+                                     HttpServletRequest request,
                                      HttpServletResponse response) {
 
         String siteEmail = req.siteEmail();
@@ -98,10 +110,15 @@ public class AuthEmailController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
+        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+        csrfTokenRepository.saveToken(csrfToken, request, response);
+
+
         return Map.of(
                 "ok", true,
                 "userId",user.getIntegrationId(),
-                "role", user.getRole()
+                "role", user.getRole(),
+                "csrfToken", csrfToken.getToken()
         );
     }
 
