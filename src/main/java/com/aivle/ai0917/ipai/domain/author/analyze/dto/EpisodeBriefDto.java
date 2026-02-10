@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class EpisodeBriefDto {
     private Long id;
+    private String subtitle;
 
     @JsonProperty("ep_num")
     private Integer epNum;
@@ -16,7 +17,8 @@ public class EpisodeBriefDto {
     public static EpisodeBriefDto from(ManuscriptView view) {
         return EpisodeBriefDto.builder()
                 .id(view.getId())
-                .epNum(view.getEpisode()) // ManuscriptView의 필드명은 episode
+                .subtitle(view.getSubtitle())
+                .epNum(view.getEpisode())
                 .build();
     }
 }
