@@ -163,10 +163,15 @@ public class SecurityConfig {
                 "X-XSRF-TOKEN",
                 "XSRF-TOKEN",
                 "Accept",
-                "Origin"
+                "Origin",
+                "Cache-Control", // ✅ SSE를 위해 추가
+                "Last-Event-ID"  // ✅ SSE 재연결을 위해 추가
         ));
 
         config.setExposedHeaders(List.of("Set-Cookie"));
+
+        // 프론트가 X-XSRF-TOKEN을 노출해야 할 필요가 있다면 이걸로 활성화
+        //config.setExposedHeaders(List.of("Set-Cookie", "X-XSRF-TOKEN"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
