@@ -27,11 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Slf4j
 @Service
@@ -248,30 +243,16 @@ public class IpextServiceImpl implements IpextService {
             throw new IllegalStateException("생성된 PDF 파일 경로가 존재하지 않습니다. (아직 생성 중이거나 실패했을 수 있습니다.)");
         }
 
-        // 3. 실제 파일 존재 여부 확인 및 읽기
-        try {
-            Path path = Paths.get(filePath);
-            File file = path.toFile();
+        // 3. AI 서버에서 PDF 다운로드
+        byte[] content = aiIpExtClient.downloadProposalPdf(id, filePath);
 
-            if (!file.exists()) {
-                throw new IllegalStateException("서버 디스크에서 파일을 찾을 수 없습니다. 경로: " + filePath);
-            }
+        // 4. 다운로드 파일명 생성 (제안서 제목 + .pdf)
+        String downloadFilename = proposal.getTitle().replaceAll("\\s+", "_") + ".pdf";
 
-            byte[] content = Files.readAllBytes(path);
-
-            // 4. 다운로드 파일명 생성 (제안서 제목 + .pdf)
-            // 공백을 언더바(_)로 치환하거나 안전한 파일명으로 변경
-            String downloadFilename = proposal.getTitle().replaceAll("\\s+", "_") + ".pdf";
-
-            return IpFileDownloadDto.builder()
-                    .filename(downloadFilename)
-                    .content(content)
-                    .build();
-
-        } catch (IOException e) {
-            log.error("파일 읽기 실패: filePath={}", filePath, e);
-            throw new RuntimeException("파일을 읽어오는 중 오류가 발생했습니다.", e);
-        }
+        return IpFileDownloadDto.builder()
+                .filename(downloadFilename)
+                .content(content)
+                .build();
     }
 
     @Override

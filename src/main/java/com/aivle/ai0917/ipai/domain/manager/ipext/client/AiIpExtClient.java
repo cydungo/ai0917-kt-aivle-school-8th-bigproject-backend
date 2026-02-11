@@ -85,6 +85,40 @@ public class AiIpExtClient {
             throw new RuntimeException("AI 서버 통신 오류 (기획서 생성): " + e.getMessage());
         }
     }
+
+    /**
+     * 3. 생성된 PDF를 AI 서버에서 직접 가져오기
+     * - AI 엔드포인트: GET /ipproposal
+     */
+    public byte[] downloadProposalPdf(Long proposalId, String filePath) {
+        log.info("AI 서버로부터 PDF 다운로드 요청: proposalId={}, filePath={}", proposalId, filePath);
+
+        try {
+            byte[] pdf = aiWebClient.get()
+                    .uri(uriBuilder -> uriBuilder.path("/ipproposal")
+                            .queryParam("id", proposalId)
+                            .queryParam("path", filePath)
+                            .build())
+                    .accept(MediaType.APPLICATION_PDF)
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block();
+
+            if (pdf == null || pdf.length == 0) {
+                throw new IllegalStateException("AI 서버가 PDF를 반환하지 않았습니다.");
+            }
+            log.info("PDF 다운로드 완료: proposalId={}, size={} bytes", proposalId, pdf.length);
+            return pdf;
+
+        } catch (WebClientResponseException e) {
+            log.error("AI 서버 응답 오류 (PDF 다운로드): status={}, body={}",
+                    e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("AI 서버 통신 오류 (PDF 다운로드): " + e.getMessage());
+        } catch (Exception e) {
+            log.error("PDF 다운로드 실패: proposalId={}", proposalId, e);
+            throw new RuntimeException("AI 서버 통신 오류 (PDF 다운로드): " + e.getMessage(), e);
+        }
+    }
     // ===== DTO 정의 =====
 
     // 1. 충돌 검사 요청 DTO
