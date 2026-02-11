@@ -22,8 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException; // [수정] 표준 예외 사용
+import java.util.*;
 import java.util.stream.Collectors;
 
 import java.io.File;
@@ -257,5 +256,50 @@ public class IpextServiceImpl implements IpextService {
             log.error("파일 읽기 실패: filePath={}", filePath, e);
             throw new RuntimeException("파일을 읽어오는 중 오류가 발생했습니다.", e);
         }
+    }
+
+    @Override
+    public List<MatchedLorebookDto> getProposalLorebooks(String managerId, Long proposalId) {
+        // 1. 제안서 조회 및 권한 확인 (존재하지 않거나 매니저 ID 불일치 시 예외 발생)
+        IpProposal proposal = ipProposalRepository.findActiveByIdAndManagerId(proposalId, managerId)
+                .orElseThrow(() -> new NoSuchElementException("해당 제안서를 찾을 수 없거나 접근 권한이 없습니다. ID: " + proposalId));
+
+        // 2. Lorebook IDs 추출
+        List<Long> lorebookIds = proposal.getLorebookIds();
+
+        // ID 목록이 없거나 비어있으면 빈 리스트 반환
+        if (lorebookIds == null || lorebookIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 3. 설정집(SettingBookView) 상세 정보 조회 (WHERE id IN (...))
+        List<SettingBookView> lorebooks = settingBookViewRepository.findAllByIdIn(lorebookIds);
+
+        if (lorebooks.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 4. 작품 제목 매핑을 위한 Work 조회 (N+1 문제 방지)
+        // 설정집들에 연관된 모든 Work ID 추출
+        Set<Long> workIds = lorebooks.stream()
+                .map(SettingBookView::getWorkId)
+                .collect(Collectors.toSet());
+
+        // Work ID로 작품들을 한 번에 조회하여 Map으로 변환 (Key: WorkId, Value: WorkTitle)
+        Map<Long, String> workTitleMap = workRepository.findAllById(workIds).stream()
+                .collect(Collectors.toMap(Work::getId, Work::getTitle));
+
+        // 5. DTO 변환 및 반환
+        return lorebooks.stream()
+                .map(lb -> MatchedLorebookDto.builder()
+                        .lorebookId(lb.getId())
+                        .keyword(lb.getKeyword())
+                        .category(lb.getCategory())
+                        // 설정 내용은 JSON 객체일 수 있으므로 문자열 변환. null 처리 주의
+                        .description(lb.getSetting() != null ? lb.getSetting().toString() : "")
+                        .workId(lb.getWorkId())
+                        .workTitle(workTitleMap.getOrDefault(lb.getWorkId(), "Unknown Title"))
+                        .build())
+                .collect(Collectors.toList());
     }
 }

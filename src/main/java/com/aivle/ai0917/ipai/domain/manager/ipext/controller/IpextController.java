@@ -3,6 +3,7 @@ package com.aivle.ai0917.ipai.domain.manager.ipext.controller;
 import com.aivle.ai0917.ipai.domain.manager.ipext.dto.IpFileDownloadDto;
 import com.aivle.ai0917.ipai.domain.manager.ipext.dto.IpProposalRequestDto;
 import com.aivle.ai0917.ipai.domain.manager.ipext.dto.IpProposalResponseDto;
+import com.aivle.ai0917.ipai.domain.manager.ipext.dto.MatchedLorebookDto;
 import com.aivle.ai0917.ipai.domain.manager.ipext.service.IpextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -130,5 +132,14 @@ public class IpextController {
             log.error("제안서 다운로드 실패: proposalId={}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    // [NEW] 10. 제안서에 사용된 설정집 목록 조회
+    // GET /api/v1/manager/ipext/lorebooks/{managerId}/{id}
+    @GetMapping("/lorebooks/{managerId}/{id}")
+    public ResponseEntity<List<MatchedLorebookDto>> getProposalLorebooks(
+            @PathVariable String managerId,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(ipextService.getProposalLorebooks(managerId, id));
     }
 }

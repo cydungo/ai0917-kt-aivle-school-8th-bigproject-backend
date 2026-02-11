@@ -6,11 +6,15 @@ spring:
       - optional:classpath:application-secret.yaml
       - optional:classpath:application-local.yaml
 
+  # [수정됨] 데이터베이스 커넥션 풀 설정 (HikariCP)
+  datasource:
+    hikari:
+      maximum-pool-size: 20       # 요청하신 대로 20개로 늘렸습니다. (기본 10 -> 20)
+      minimum-idle: 20            # 성능 최적화를 위해 max와 동일하게 맞추는 것을 권장합니다.
 
-  # JPA 및 하이버네이트 설정
+  # JPA 및 하이버네이트 설정 (기존 유지)
   jpa:
     hibernate:
-      # update: 변경된 엔티티 클래스만 DB에 반영합니다.
       ddl-auto: update
     show-sql: true
     properties:
@@ -18,7 +22,6 @@ spring:
         format_sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-# 로그 설정 (사용자 기존 설정 유지)
 logging:
   level:
     org.springframework.security: DEBUG
@@ -29,23 +32,20 @@ logging:
   charset:
     console: UTF-8
 
-# 앱 버전 설정 (사용자 기존 설정 유지)
 app:
   version: ${version}
 
 server:
-  # 서블릿 전역 인코딩 설정 (한글 깨짐 방지 핵심)
   servlet:
     encoding:
       charset: UTF-8
       enabled: true
-      force: true # 응답 헤더에 UTF-8 인코딩을 강제 적용합니다.
-
+      force: true
   tomcat:
     accesslog:
       enabled: true
 
 file:
-  dir: ./uploads/ # 기본값
-#  dir: C:/data/ipai/uploads/ # 윈도우용 절대 경로
-#  dir: /home/ubuntu/app/uploads/ # 리눅스용 절대 경로
+  dir: ./uploads/
+#  dir: C:/data/ipai/uploads/
+#  dir: /home/ubuntu/app/uploads/

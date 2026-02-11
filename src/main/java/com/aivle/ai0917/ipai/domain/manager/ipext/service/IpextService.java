@@ -44,4 +44,5 @@ public interface IpextService {
     // [추가] IP 확장 제안서 다운로드 (파일 데이터 + 파일명 반환을 위해 DTO 사용 권장)
     IpFileDownloadDto downloadProposal(Long id);
 
+    List<MatchedLorebookDto> getProposalLorebooks(String managerId, Long proposalId);
 }

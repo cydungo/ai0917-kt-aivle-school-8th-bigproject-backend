@@ -32,5 +32,12 @@ public interface SettingBookViewRepository extends JpaRepository<SettingBookView
      */
     List<SettingBookView> findAllByWorkId(Long workId);
 
+    /**
+     * ID 리스트로 설정집 목록 조회
+     * @param ids
+     * @return
+     */
+    List<SettingBookView> findAllByIdIn(List<Long> ids);
+
 
 }
