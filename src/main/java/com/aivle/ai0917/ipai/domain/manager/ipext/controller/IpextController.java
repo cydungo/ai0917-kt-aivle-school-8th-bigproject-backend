@@ -1,10 +1,8 @@
 package com.aivle.ai0917.ipai.domain.manager.ipext.controller;
 
-import com.aivle.ai0917.ipai.domain.manager.ipext.dto.IpFileDownloadDto;
-import com.aivle.ai0917.ipai.domain.manager.ipext.dto.IpProposalRequestDto;
-import com.aivle.ai0917.ipai.domain.manager.ipext.dto.IpProposalResponseDto;
-import com.aivle.ai0917.ipai.domain.manager.ipext.dto.MatchedLorebookDto;
+import com.aivle.ai0917.ipai.domain.manager.ipext.dto.*;
 import com.aivle.ai0917.ipai.domain.manager.ipext.service.IpextService;
+import com.aivle.ai0917.ipai.domain.manager.ipextcomment.dto.ManagerCommentStatusUpdateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -141,5 +139,20 @@ public class IpextController {
             @PathVariable String managerId,
             @PathVariable Long id) {
         return ResponseEntity.ok(ipextService.getProposalLorebooks(managerId, id));
+    }
+
+
+    // PATCH /api/v1/manager/ipext/{id}/status
+    // (기존 코멘트 수정 기능은 삭제되었습니다)
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<String> updateProposalStatus(
+            @PathVariable("id") Long proposalId,
+            @RequestBody IpProposalStatusUpdateDto request) {
+
+        log.info("제안서 상태 변경 요청: proposalId={}, status={}", proposalId, request.getStatus());
+
+        ipextService.updateProposalStatus(proposalId, request);
+
+        return ResponseEntity.ok("제안서 상태가 변경되었습니다.");
     }
 }

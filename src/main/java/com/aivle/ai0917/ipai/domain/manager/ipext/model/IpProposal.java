@@ -209,4 +209,8 @@ private String expProduction;
         BLOCKBUSTER("초대형(글로벌 타겟)");
         private final String description;
     }
+
+    public void updateStatus(Status newStatus) {
+        this.status = newStatus;
+    }
 }

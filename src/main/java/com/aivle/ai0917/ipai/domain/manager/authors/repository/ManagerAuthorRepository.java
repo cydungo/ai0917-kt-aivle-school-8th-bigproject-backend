@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -128,4 +129,7 @@ public interface ManagerAuthorRepository extends JpaRepository<User, Long> {
     Optional<User> findMatchedAuthorDetail(@Param("authorId") Long authorId,
                                            @Param("managerIntegrationId") String managerIntegrationId,
                                            @Param("role") UserRole role);
+
+
+    List<User> findByIntegrationIdIn(List<String> integrationIds);
 }

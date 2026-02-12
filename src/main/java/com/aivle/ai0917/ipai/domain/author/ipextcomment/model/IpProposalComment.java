@@ -57,16 +57,14 @@ public class IpProposalComment {
     }
 
     public void update(Status status, String comment) {
-        if (status != null) {
-            this.status = status;
-        }
-        if (comment != null) {
-            this.comment = comment;
-        }
+
     }
     // ========== [Inner Enum] 코멘트 상태 ==========
     public void archive() {
         this.status = Status.ARCHIVED;
+    }
+
+    public void updateStatus(Status newStatus) {
     }
 
     // ========== [Inner Enum] 코멘트 상태 ==========

@@ -16,6 +16,7 @@ import com.aivle.ai0917.ipai.domain.manager.ipext.client.AiIpExtClient;
 import com.aivle.ai0917.ipai.domain.manager.ipext.dto.*;
 import com.aivle.ai0917.ipai.domain.manager.ipext.model.IpProposal;
 import com.aivle.ai0917.ipai.domain.manager.ipext.repository.IpProposalRepository;
+import com.aivle.ai0917.ipai.domain.manager.ipextcomment.dto.ManagerCommentStatusUpdateDto;
 import com.aivle.ai0917.ipai.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -298,5 +299,35 @@ public class IpextServiceImpl implements IpextService {
                         .workTitle(workTitleMap.getOrDefault(lb.getWorkId(), "Unknown Title"))
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    // [이동/추가] 코멘트 상태 변경 로직
+    @Override
+    @Transactional
+    public void updateProposalStatus(Long proposalId, IpProposalStatusUpdateDto requestDto) {
+        // 1. 제안서 조회 (삭제되지 않은 것만)
+        IpProposal proposal = ipProposalRepository.findActiveById(proposalId)
+                .orElseThrow(() -> new NoSuchElementException("해당 제안서를 찾을 수 없습니다. ID: " + proposalId));
+
+        // 2. 상태값 유효성 검사 및 변환
+        IpProposal.Status newStatus;
+        try {
+            // 요청된 String을 Enum으로 변환 (APPROVED, REJECTED 등)
+            newStatus = IpProposal.Status.valueOf(requestDto.getStatus().toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new IllegalArgumentException("유효하지 않은 상태값입니다. (예: APPROVED, REJECTED)");
+        }
+
+        // 3. 상태 검증 (선택사항: 특정 상태로만 변경 가능하도록 제한하고 싶다면 여기에 로직 추가)
+        // 예: if (newStatus != IpProposal.Status.APPROVED && newStatus != IpProposal.Status.REJECTED) ...
+
+        // 4. 상태 업데이트 (엔티티 내부에 메서드 추가 필요 혹은 Setter 사용)
+        // IpProposal 엔티티에 updateStatus 메서드가 없다면 아래와 같이 추가하거나 필드 접근 필요
+        // 여기서는 엔티티에 메서드를 추가했다고 가정하거나, protected 필드라면 Setter 추가 필요
+        // proposal.setStatus(newStatus);
+        // [권장] IpProposal.java 에 updateStatus 메서드 추가
+        proposal.updateStatus(newStatus);
+
+        log.info("제안서 상태 변경 완료: ID={}, Status={}", proposalId, newStatus);
     }
 }

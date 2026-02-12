@@ -16,11 +16,16 @@ public class ManagerCommentResponseDto {
     private String comment;         // 코멘트 내용
     private LocalDateTime createdAt; // 작성일
 
+
     public ManagerCommentResponseDto(IpProposalComment entity) {
         this.commentId = entity.getId();
         this.authorName = entity.getAuthorName();
         this.authorId = entity.getAuthorId();
-        this.status = entity.getStatus().name(); // 또는 getDescription() 사용 가능
+
+        if (entity.getStatus() != null) {
+            this.status = entity.getStatus().name();
+        }
+
         this.comment = entity.getComment();
         this.createdAt = entity.getCreatedAt();
     }

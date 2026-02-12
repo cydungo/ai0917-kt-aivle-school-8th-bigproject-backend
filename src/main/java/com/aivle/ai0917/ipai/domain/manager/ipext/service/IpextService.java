@@ -2,6 +2,7 @@ package com.aivle.ai0917.ipai.domain.manager.ipext.service;
 
 import com.aivle.ai0917.ipai.domain.manager.ipext.client.AiIpExtClient;
 import com.aivle.ai0917.ipai.domain.manager.ipext.dto.*;
+import com.aivle.ai0917.ipai.domain.manager.ipextcomment.dto.ManagerCommentStatusUpdateDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -45,4 +46,6 @@ public interface IpextService {
     IpFileDownloadDto downloadProposal(Long id);
 
     List<MatchedLorebookDto> getProposalLorebooks(String managerId, Long proposalId);
+
+    void updateProposalStatus(Long proposalId, IpProposalStatusUpdateDto requestDto);
 }
