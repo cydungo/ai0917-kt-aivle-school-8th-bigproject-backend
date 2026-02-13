@@ -109,6 +109,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/me",
                                 "/api/v1/signup/**"
 
+
                         ).permitAll()
 
                         .anyRequest().authenticated()
