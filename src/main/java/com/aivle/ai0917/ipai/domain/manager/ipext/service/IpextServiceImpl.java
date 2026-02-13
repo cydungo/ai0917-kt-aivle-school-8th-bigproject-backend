@@ -58,7 +58,28 @@ public class IpextServiceImpl implements IpextService {
         IpProposal proposal = ipProposalRepository.findActiveByIdAndManagerId(id, managerId)
                 .orElseThrow(() -> new NoSuchElementException("해당 제안서를 찾을 수 없거나 접근 권한이 없습니다. ID: " + id));
 
-        return new IpProposalResponseDto(proposal);
+        // 2. DTO 생성
+        IpProposalResponseDto responseDto = new IpProposalResponseDto(proposal);
+
+        // 3. [추가] 매칭된 작가 이름 조회 로직
+        List<String> matchAuthorIds = proposal.getMatchAuthorIds();
+        List<String> authorNames;
+
+        if (matchAuthorIds != null && !matchAuthorIds.isEmpty()) {
+            List<User> authors = managerAuthorRepository.findByIntegrationIdIn(matchAuthorIds);
+
+            // 이름만 추출
+            authorNames = authors.stream()
+                    .map(User::getName)
+                    .collect(Collectors.toList());
+        } else {
+            authorNames = Collections.emptyList();
+        }
+
+        // 4. DTO에 이름 리스트 주입
+        responseDto.setMatchedAuthorNames(authorNames);
+
+        return responseDto;
     }
 
     // 3. IP 확장 제안 수정 - ManagerId & ID 기준

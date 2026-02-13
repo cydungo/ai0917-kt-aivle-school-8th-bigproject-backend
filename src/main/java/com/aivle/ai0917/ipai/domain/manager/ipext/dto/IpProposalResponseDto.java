@@ -3,6 +3,7 @@ package com.aivle.ai0917.ipai.domain.manager.ipext.dto;
 import com.aivle.ai0917.ipai.domain.manager.ipext.model.IpProposal;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +39,9 @@ public class IpProposalResponseDto {
 
     // 파일 정보
     private String filePath;
+
+    @Setter
+    private List<String> matchedAuthorNames;
 
     public IpProposalResponseDto(IpProposal entity) {
         this.id = entity.getId();
