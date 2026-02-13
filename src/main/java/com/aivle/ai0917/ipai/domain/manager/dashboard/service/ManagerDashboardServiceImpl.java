@@ -5,6 +5,7 @@ import com.aivle.ai0917.ipai.domain.manager.authors.repository.ManagerAuthorRepo
 import com.aivle.ai0917.ipai.domain.manager.dashboard.dto.ManagerDashboardNoticeDto;
 import com.aivle.ai0917.ipai.domain.manager.dashboard.dto.ManagerDashboardPageResponseDto;
 import com.aivle.ai0917.ipai.domain.manager.dashboard.dto.ManagerDashboardSummaryResponseDto;
+import com.aivle.ai0917.ipai.domain.manager.ipext.model.IpProposal;
 import com.aivle.ai0917.ipai.domain.manager.ipext.repository.IpProposalRepository;
 import com.aivle.ai0917.ipai.domain.notice.model.Notice;
 import com.aivle.ai0917.ipai.domain.notice.repository.NoticeRepository;
@@ -62,7 +63,7 @@ public class ManagerDashboardServiceImpl implements ManagerDashboardService {
 
         long pendingProposals = ipProposalRepository.countByManagerIdAndStatusAndFileSizeIsNotNull(
                 managerIntegrationId,
-                "PENDING_APPROVAL"
+                IpProposal.Status.PENDING_APPROVAL
         );
 
         return ManagerDashboardSummaryResponseDto.builder()

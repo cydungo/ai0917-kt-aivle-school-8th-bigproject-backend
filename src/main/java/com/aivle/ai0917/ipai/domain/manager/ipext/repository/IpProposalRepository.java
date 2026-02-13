@@ -33,5 +33,5 @@ public interface IpProposalRepository extends JpaRepository<IpProposal, Long> {
     @Query(value = "SELECT * FROM ip_proposal p WHERE p.id = :id AND :authorId = ANY(p.match_author_id) AND p.status <> 'DELETED'", nativeQuery = true)
     Optional<IpProposal> findActiveByIdAndAuthorId(@Param("id") Long id, @Param("authorId") String authorId);
 
-    long countByManagerIdAndStatusAndFileSizeIsNotNull(String managerId, String status);
+    long countByManagerIdAndStatusAndFileSizeIsNotNull(String managerId, IpProposal.Status status);
 }
