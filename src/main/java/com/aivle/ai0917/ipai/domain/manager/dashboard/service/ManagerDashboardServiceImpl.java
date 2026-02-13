@@ -1,12 +1,11 @@
 package com.aivle.ai0917.ipai.domain.manager.dashboard.service;
 
 import com.aivle.ai0917.ipai.domain.admin.access.model.UserRole;
-import com.aivle.ai0917.ipai.domain.admin.dashboard.model.DailyActiveUser;
-import com.aivle.ai0917.ipai.domain.admin.dashboard.repository.DailyActiveUserRepository;
 import com.aivle.ai0917.ipai.domain.manager.authors.repository.ManagerAuthorRepository;
 import com.aivle.ai0917.ipai.domain.manager.dashboard.dto.ManagerDashboardNoticeDto;
 import com.aivle.ai0917.ipai.domain.manager.dashboard.dto.ManagerDashboardPageResponseDto;
 import com.aivle.ai0917.ipai.domain.manager.dashboard.dto.ManagerDashboardSummaryResponseDto;
+import com.aivle.ai0917.ipai.domain.manager.ipext.repository.IpProposalRepository;
 import com.aivle.ai0917.ipai.domain.notice.model.Notice;
 import com.aivle.ai0917.ipai.domain.notice.repository.NoticeRepository;
 import com.aivle.ai0917.ipai.domain.user.model.User;
@@ -31,6 +30,7 @@ public class ManagerDashboardServiceImpl implements ManagerDashboardService {
     private final UserRepository userRepository;
     private final ManagerAuthorRepository managerAuthorRepository;
     private final NoticeRepository noticeRepository;
+    private final IpProposalRepository ipProposalRepository;
 
     @Override
     public ManagerDashboardPageResponseDto getDashboardPage(Long managerUserId) {
@@ -50,6 +50,7 @@ public class ManagerDashboardServiceImpl implements ManagerDashboardService {
         }
 
         String managerIntegrationId = manager.getIntegrationId();
+
         long managedAuthors = managerAuthorRepository.countByRoleAndManagerIntegrationId(
                 UserRole.Author, managerIntegrationId
         );
@@ -58,11 +59,18 @@ public class ManagerDashboardServiceImpl implements ManagerDashboardService {
                 UserRole.Author, managerIntegrationId, LocalDateTime.now().minusHours(1)
         );
 
+
+        long pendingProposals = ipProposalRepository.countByManagerIdAndStatusAndFileSizeIsNotNull(
+                managerIntegrationId,
+                "PENDING_APPROVAL"
+        );
+
         return ManagerDashboardSummaryResponseDto.builder()
-                .pendingProposals(0L)
+                .pendingProposals(pendingProposals) // 수정된 값 주입
                 .managedAuthors(managedAuthors)
                 .activeAuthors(activeAuthors)
                 .build();
+
     }
 
 
