@@ -11,6 +11,7 @@ spring:
     hikari:
       maximum-pool-size: 20       # 요청하신 대로 20개로 늘렸습니다. (기본 10 -> 20)
       minimum-idle: 20            # 성능 최적화를 위해 max와 동일하게 맞추는 것을 권장합니다.
+      leak-detection-threshold: 2000
 
   # JPA 및 하이버네이트 설정 (기존 유지)
   jpa:
