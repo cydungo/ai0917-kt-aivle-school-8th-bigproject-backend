@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,9 @@ import java.util.Map;
 public class AiIpExtClient {
 
     private final WebClient aiWebClient;
+
+    @Value("${ai.server.request-timeout-seconds:90}")
+    private long requestTimeoutSeconds;
 
     /**
      * 1. 설정집 충돌 검사 요청 (AI)
@@ -40,7 +45,7 @@ public class AiIpExtClient {
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(LorebookCheckResponse.class)
-                    .block();
+                    .block(Duration.ofSeconds(requestTimeoutSeconds));
 
             log.info("설정집 충돌 검사 완료");
             return response;
@@ -71,7 +76,7 @@ public class AiIpExtClient {
                     .bodyValue(requestBody)  // ⭐ Map을 JSON으로 변환하여 전송
                     .retrieve()
                     .bodyToMono(ProposalResponse.class)
-                    .block();
+                    .block(Duration.ofSeconds(requestTimeoutSeconds));
 
             log.info("IP 기획서 생성 완료: PDF Path={}", response.getPdfPath());
             return response;
@@ -102,7 +107,7 @@ public class AiIpExtClient {
                     .accept(MediaType.APPLICATION_PDF)
                     .retrieve()
                     .bodyToMono(byte[].class)
-                    .block();
+                    .block(Duration.ofSeconds(requestTimeoutSeconds));
 
             if (pdf == null || pdf.length == 0) {
                 throw new IllegalStateException("AI 서버가 PDF를 반환하지 않았습니다.");
