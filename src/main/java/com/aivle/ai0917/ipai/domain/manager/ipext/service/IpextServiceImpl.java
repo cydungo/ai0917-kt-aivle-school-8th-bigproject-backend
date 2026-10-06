@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -224,7 +225,7 @@ public class IpextServiceImpl implements IpextService {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public AiIpExtClient.ProposalResponse createProposal(IpProposalRequestDto request) {
         if (request.getManagerId() == null) {
             throw new IllegalArgumentException("Manager ID는 필수입니다.");
@@ -254,6 +255,7 @@ public class IpextServiceImpl implements IpextService {
 
     // [추가] IP 확장 제안서 다운로드 구현
     @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public IpFileDownloadDto downloadProposal(Long id) {
         // 1. 제안서 조회 (Status가 DELETED가 아닌 것)
         IpProposal proposal = ipProposalRepository.findActiveById(id)

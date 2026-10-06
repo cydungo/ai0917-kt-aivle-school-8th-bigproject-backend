@@ -51,3 +51,8 @@ file:
   dir: ./uploads/
 #  dir: C:/data/ipai/uploads/
 #  dir: /home/ubuntu/app/uploads/
+
+ai:
+  server:
+    request-timeout-seconds: 90
+    max-in-memory-size-mb: 20
